@@ -18,7 +18,7 @@ const (
 type TourExecution struct {
 	Id        uuid.UUID `json:"id"`
 	TourId    uuid.UUID `json:"toudId"`
-	TouristId uuid.UUID `json:"touristId"`
+	TouristId int64     `json:"touristId"`
 	Status    TourExecutionStatus
 	Position  Position `gorm:"type:jsonb"`
 	Tasks     []PointTask

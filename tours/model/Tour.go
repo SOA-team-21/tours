@@ -24,7 +24,7 @@ type Tour struct {
 	Difficult     int64
 	Price         float64
 	Status        TourStatus
-	AuthorId      uuid.UUID `json:"authorId"`
+	AuthorId      int64 `json:"authorId"`
 	Length        float64
 	PublishTime   time.Time
 	ArchiveTime   time.Time

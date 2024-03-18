@@ -4,5 +4,5 @@ import "github.com/google/uuid"
 
 type TourPurchaseToken struct {
 	TourId    uuid.UUID
-	TouristId uuid.UUID
+	TouristId int64
 }
