@@ -17,15 +17,19 @@ func (service *TourService) FindTour(id string) (*model.Tour, error) {
 	if err != nil {
 		return nil, fmt.Errorf(fmt.Sprintf("menu item with id %s not found", id))
 	}
-
-	//TODO: Insert RequiredTimes
-
-	//Insertion of the KeyPoints, manually
-	keyPointsFromDb, err := service.KeyPointRepo.GetAllByTour(Tour.Id.String())
-	if err == nil {
-		Tour.KeyPoints = append(Tour.KeyPoints, keyPointsFromDb...)
-	}
+	populateTour(service, &Tour)
 	return &Tour, nil
+}
+
+func (service *TourService) FindAllByAuthor(authorId string) ([]model.Tour, error) {
+	tours, err := service.Repo.GetAllByAuthor(authorId)
+	if err != nil {
+		return nil, fmt.Errorf("cannot find tours by author with id %s", authorId)
+	}
+	for i := range tours {
+		populateTour(service, &tours[i])
+	}
+	return tours, nil
 }
 
 func (service *TourService) Create(tour *model.Tour) (*model.Tour, error) {
@@ -45,4 +49,15 @@ func (service *TourService) Update(tour *model.Tour) (*model.Tour, error) {
 		service.KeyPointRepo.UpdateKeyPoint(&tour.KeyPoints[i])
 	}
 	return tour, nil
+}
+
+func populateTour(service *TourService, Tour *model.Tour) { //Insertion of RequiredTimes and KeyPoints into Tour
+	requiretTimesFromDb, err := service.Repo.GetAllByTour(Tour.Id.String())
+	if err == nil {
+		Tour.RequiredTimes = append(Tour.RequiredTimes, requiretTimesFromDb...)
+	}
+	keyPointsFromDb, err := service.KeyPointRepo.GetAllByTour(Tour.Id.String())
+	if err == nil {
+		Tour.KeyPoints = append(Tour.KeyPoints, keyPointsFromDb...)
+	}
 }

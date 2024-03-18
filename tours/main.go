@@ -34,6 +34,7 @@ func startServer(handler *handler.TourHandler, keyPointHandler *handler.KeyPoint
 	//TOURS
 	router.HandleFunc("/tour/create", handler.Create).Methods("POST")
 	router.HandleFunc("/tour/getTour/{id}", handler.Get).Methods("GET")
+	router.HandleFunc("/tour/getAllByAuthor/{id}", handler.GetAllByAuthor).Methods("GET")
 	router.HandleFunc("/tour/update/{id}", handler.Update).Methods("PUT")
 
 	//KEYPOINTS

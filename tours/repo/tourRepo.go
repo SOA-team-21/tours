@@ -13,10 +13,19 @@ type TourRepository struct {
 func (repo *TourRepository) Get(id string) (model.Tour, error) {
 	tour := model.Tour{}
 	dbResult := repo.DatabaseConnection.First(&tour, "id = ?", id)
-	if dbResult != nil {
+	if dbResult.Error != nil {
 		return tour, dbResult.Error
 	}
 	return tour, nil
+}
+
+func (repo *TourRepository) GetAllByAuthor(authorId string) ([]model.Tour, error) {
+	tours := []model.Tour{}
+	dbResult := repo.DatabaseConnection.Find(&tours, "author_id = ?", authorId)
+	if dbResult.Error != nil {
+		return tours, dbResult.Error
+	}
+	return tours, nil
 }
 
 func (repo *TourRepository) CreateTour(tour *model.Tour) error {

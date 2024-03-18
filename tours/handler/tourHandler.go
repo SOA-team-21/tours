@@ -27,6 +27,19 @@ func (handler *TourHandler) Get(writer http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(writer).Encode(point)
 }
 
+func (handler *TourHandler) GetAllByAuthor(writer http.ResponseWriter, req *http.Request) {
+	id := mux.Vars(req)["id"]
+	log.Printf("Author sa id-em %s", id)
+	tours, err := handler.TourService.FindAllByAuthor(id)
+	writer.Header().Set("Content-Type", "application/json")
+	if err != nil {
+		writer.WriteHeader(http.StatusNotFound)
+		return
+	}
+	writer.WriteHeader(http.StatusOK)
+	json.NewEncoder(writer).Encode(tours)
+}
+
 func (handler *TourHandler) Create(writer http.ResponseWriter, req *http.Request) {
 	var Tour model.Tour
 	err := json.NewDecoder(req.Body).Decode(&Tour)
