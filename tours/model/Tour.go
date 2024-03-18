@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
 
@@ -29,8 +30,8 @@ type Tour struct {
 	ArchiveTime   time.Time
 	MyOwn         bool
 	KeyPoints     []KeyPoint
-	RequiredTimes []RequiredTime `gorm:"type:jsonb;"`
-	Tags          []Tag          `gorm:"type:jsonb;"`
+	RequiredTimes []RequiredTime
+	Tags          pq.StringArray `gorm:"type:text[];"`
 }
 
 func (tour *Tour) BeforeCreate(scope *gorm.DB) error {

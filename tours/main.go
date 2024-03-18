@@ -21,7 +21,7 @@ func initDB() *gorm.DB {
 		print(err)
 		return nil
 	}
-	err = database.AutoMigrate(&model.Tour{}, &model.KeyPoint{}, &model.TourExecution{}, &model.PointTask{})
+	err = database.AutoMigrate(&model.Tour{}, &model.KeyPoint{}, &model.TourExecution{}, &model.PointTask{}, &model.RequiredTime{})
 	if err != nil {
 		log.Fatalf("Error migrating models: %v", err)
 	}

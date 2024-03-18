@@ -18,6 +18,8 @@ func (service *TourService) FindTour(id string) (*model.Tour, error) {
 		return nil, fmt.Errorf(fmt.Sprintf("menu item with id %s not found", id))
 	}
 
+	//TODO: Insert RequiredTimes
+
 	//Insertion of the KeyPoints, manually
 	keyPointsFromDb, err := service.KeyPointRepo.GetAllByTour(Tour.Id.String())
 	if err == nil {

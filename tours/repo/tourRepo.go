@@ -9,6 +9,7 @@ type TourRepository struct {
 	DatabaseConnection *gorm.DB
 }
 
+// TOURS
 func (repo *TourRepository) Get(id string) (model.Tour, error) {
 	tour := model.Tour{}
 	dbResult := repo.DatabaseConnection.First(&tour, "id = ?", id)
@@ -29,6 +30,42 @@ func (repo *TourRepository) CreateTour(tour *model.Tour) error {
 
 func (repo *TourRepository) UpdateTour(tour *model.Tour) error {
 	dbResult := repo.DatabaseConnection.Save(tour)
+	if dbResult.Error != nil {
+		return dbResult.Error
+	}
+	return nil
+}
+
+// REQUIRED TIMES
+func (repo *TourRepository) GetByTour(tourId string) (model.RequiredTime, error) {
+	time := model.RequiredTime{}
+	dbResult := repo.DatabaseConnection.First(&time, "tour_id = ?", tourId)
+	if dbResult != nil {
+		return time, dbResult.Error
+	}
+	return time, nil
+}
+
+func (repo *TourRepository) GetAllByTour(tourId string) ([]model.RequiredTime, error) {
+	time := []model.RequiredTime{}
+	dbResult := repo.DatabaseConnection.Find(&time, "tour_id = ?", tourId)
+	if dbResult != nil {
+		return time, dbResult.Error
+	}
+	return time, nil
+}
+
+func (repo *TourRepository) CreateRequiredTime(time *model.RequiredTime) error {
+	dbResult := repo.DatabaseConnection.Create(time)
+	if dbResult.Error != nil {
+		return dbResult.Error
+	}
+	println("Rows affected: ", dbResult.RowsAffected)
+	return nil
+}
+
+func (repo *TourRepository) UpdateRequiredTime(time *model.RequiredTime) error {
+	dbResult := repo.DatabaseConnection.Save(time)
 	if dbResult.Error != nil {
 		return dbResult.Error
 	}
