@@ -35,7 +35,7 @@ func (handler *TourHandler) Create(writer http.ResponseWriter, req *http.Request
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	err = handler.TourService.Create(&Tour)
+	tour, err := handler.TourService.Create(&Tour)
 	if err != nil {
 		println("Error while creating a new Tour")
 		writer.WriteHeader(http.StatusExpectationFailed)
@@ -43,6 +43,7 @@ func (handler *TourHandler) Create(writer http.ResponseWriter, req *http.Request
 	}
 	writer.WriteHeader(http.StatusCreated)
 	writer.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(writer).Encode(tour)
 }
 
 func (handler *TourHandler) Update(writer http.ResponseWriter, req *http.Request) {
@@ -53,7 +54,7 @@ func (handler *TourHandler) Update(writer http.ResponseWriter, req *http.Request
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	err = handler.TourService.Update(&Tour)
+	tour, err := handler.TourService.Update(&Tour)
 	if err != nil {
 		println("Error while updating a Tour")
 		writer.WriteHeader(http.StatusExpectationFailed)
@@ -61,4 +62,5 @@ func (handler *TourHandler) Update(writer http.ResponseWriter, req *http.Request
 	}
 	writer.WriteHeader(http.StatusCreated)
 	writer.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(writer).Encode(tour)
 }

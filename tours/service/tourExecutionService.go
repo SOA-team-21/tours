@@ -11,12 +11,12 @@ type TourExecutionService struct {
 	TaskRepo     *repo.PointTaskRepo
 }
 
-func (service *TourExecutionService) Create(token *model.TourPurchaseToken) error {
+func (service *TourExecutionService) Create(token *model.TourPurchaseToken) (*model.TourExecution, error) {
 	execution := model.TourExecution{}
 	execution.TourId = token.TourId
 	execution.TouristId = token.TouristId
 	if err := service.Repo.CreateExecution(&execution); err != nil {
-		return err
+		return nil, err
 	}
 	points, _ := service.KeyPointRepo.GetAllByTour(token.TourId.String())
 	task := model.PointTask{}
@@ -24,8 +24,8 @@ func (service *TourExecutionService) Create(token *model.TourPurchaseToken) erro
 		task.TourExecutionId = execution.Id
 		task.KeyPointId = point.Id
 		if err := service.TaskRepo.CreateTask(&task); err != nil {
-			return err
+			return nil, err
 		}
 	}
-	return nil
+	return &execution, nil
 }

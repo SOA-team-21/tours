@@ -28,21 +28,21 @@ func (service *TourService) FindTour(id string) (*model.Tour, error) {
 	return &Tour, nil
 }
 
-func (service *TourService) Create(tour *model.Tour) error {
+func (service *TourService) Create(tour *model.Tour) (*model.Tour, error) {
 	err := service.Repo.CreateTour(tour)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return tour, nil
 }
 
-func (service *TourService) Update(tour *model.Tour) error {
+func (service *TourService) Update(tour *model.Tour) (*model.Tour, error) {
 	err := service.Repo.UpdateTour(tour)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	for i := range tour.KeyPoints {
 		service.KeyPointRepo.UpdateKeyPoint(&tour.KeyPoints[i])
 	}
-	return nil
+	return tour, nil
 }

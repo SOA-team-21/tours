@@ -20,7 +20,7 @@ func (handler *TourExecutionHandler) Create(writer http.ResponseWriter, req *htt
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	err = handler.Service.Create(&token)
+	execution, err := handler.Service.Create(&token)
 	if err != nil {
 		println("Error while creating a new TourExecution")
 		writer.WriteHeader(http.StatusExpectationFailed)
@@ -28,4 +28,5 @@ func (handler *TourExecutionHandler) Create(writer http.ResponseWriter, req *htt
 	}
 	writer.WriteHeader(http.StatusCreated)
 	writer.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(writer).Encode(execution)
 }
