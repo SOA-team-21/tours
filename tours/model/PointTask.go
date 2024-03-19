@@ -8,14 +8,14 @@ import (
 )
 
 type PointTask struct {
-	Id              uuid.UUID `json:"id" gorm:"primaryKey"`
-	TourExecutionId uuid.UUID `json:"tourExeId"`
-	KeyPointId      uuid.UUID `json:"keyPointId"`
+	Id              int64 `json:"id" gorm:"primaryKey"`
+	TourExecutionId int64 `json:"tourExeId"`
+	KeyPointId      int64 `json:"keyPointId"`
 	Done            bool
 	DoneOn          time.Time
 }
 
 func (task *PointTask) BeforeCreate(scope *gorm.DB) error {
-	task.Id = uuid.New()
+	task.Id = int64(uuid.New().ID()) + time.Now().UnixNano()/int64(time.Microsecond)
 	return nil
 }
