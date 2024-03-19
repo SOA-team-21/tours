@@ -3,14 +3,15 @@ package model
 import (
 	"errors"
 	"math"
+	"time"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type KeyPoint struct {
-	Id          uuid.UUID `json:"id" gorm:"primaryKey"`
-	TourId      uuid.UUID `json:"tourId"`
+	Id          int64 `json:"id" gorm:"primaryKey"`
+	TourId      int64 `json:"tourId"`
 	Latitude    float64
 	Longitude   float64
 	Name        string
@@ -23,7 +24,7 @@ func (point *KeyPoint) BeforeCreate(scope *gorm.DB) error {
 	if err := point.Validate(); err != nil {
 		return err
 	}
-	point.Id = uuid.New()
+	point.Id = int64(uuid.New().ID()) + time.Now().UnixNano()/int64(time.Microsecond)
 	return nil
 }
 

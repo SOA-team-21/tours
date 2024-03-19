@@ -18,7 +18,7 @@ func (service *TourExecutionService) Create(token *model.TourPurchaseToken) (*mo
 	if err := service.Repo.CreateExecution(&execution); err != nil {
 		return nil, err
 	}
-	points, _ := service.KeyPointRepo.GetAllByTour(token.TourId.String())
+	points, _ := service.KeyPointRepo.GetAllByTour(string(token.TourId))
 	task := model.PointTask{}
 	for _, point := range points {
 		task.TourExecutionId = execution.Id

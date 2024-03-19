@@ -18,7 +18,7 @@ const (
 )
 
 type Tour struct {
-	Id            uuid.UUID `json:"id" gorm:"primaryKey"`
+	Id            int64 `json:"id" gorm:"primaryKey"`
 	Name          string
 	Description   string
 	Difficult     int64
@@ -38,7 +38,7 @@ func (tour *Tour) BeforeCreate(scope *gorm.DB) error {
 	if err := tour.Validate(); err != nil {
 		return err
 	}
-	tour.Id = uuid.New()
+	tour.Id = int64(uuid.New().ID()) + time.Now().UnixNano()/int64(time.Microsecond)
 	return nil
 }
 

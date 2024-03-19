@@ -45,18 +45,18 @@ func (service *TourService) Update(tour *model.Tour) (*model.Tour, error) {
 	if err != nil {
 		return nil, err
 	}
-	for i := range tour.KeyPoints {
-		service.KeyPointRepo.UpdateKeyPoint(&tour.KeyPoints[i])
-	}
+	// for i := range tour.KeyPoints {
+	// 	service.KeyPointRepo.UpdateKeyPoint(&tour.KeyPoints[i])
+	// }
 	return tour, nil
 }
 
 func populateTour(service *TourService, Tour *model.Tour) { //Insertion of RequiredTimes and KeyPoints into Tour
-	requiretTimesFromDb, err := service.Repo.GetAllByTour(Tour.Id.String())
+	requiretTimesFromDb, err := service.Repo.GetAllByTour(fmt.Sprint(Tour.Id))
 	if err == nil {
 		Tour.RequiredTimes = append(Tour.RequiredTimes, requiretTimesFromDb...)
 	}
-	keyPointsFromDb, err := service.KeyPointRepo.GetAllByTour(Tour.Id.String())
+	keyPointsFromDb, err := service.KeyPointRepo.GetAllByTour(fmt.Sprint(Tour.Id))
 	if err == nil {
 		Tour.KeyPoints = append(Tour.KeyPoints, keyPointsFromDb...)
 	}
