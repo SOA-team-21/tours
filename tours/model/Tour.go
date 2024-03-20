@@ -4,7 +4,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
@@ -38,7 +37,6 @@ func (tour *Tour) BeforeCreate(scope *gorm.DB) error {
 	if err := tour.Validate(); err != nil {
 		return err
 	}
-	tour.Id = int64(uuid.New().ID()) + time.Now().UnixNano()/int64(time.Microsecond)
 	return nil
 }
 
