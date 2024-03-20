@@ -2,8 +2,10 @@ package handler
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"tours.xws.com/model"
 	"tours.xws.com/service"
 )
@@ -28,5 +30,18 @@ func (handler *TourExecutionHandler) Create(writer http.ResponseWriter, req *htt
 	}
 	writer.WriteHeader(http.StatusCreated)
 	writer.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(writer).Encode(execution)
+}
+
+func (handler *TourExecutionHandler) QuitExecution(writer http.ResponseWriter, req *http.Request) {
+	id := mux.Vars(req)["id"]
+	log.Printf("TourExecution sa id-em %s", id)
+	execution, err := handler.Service.QuitExecution(id)
+	writer.Header().Set("Content-Type", "application/json")
+	if err != nil {
+		writer.WriteHeader(http.StatusNotFound)
+		return
+	}
+	writer.WriteHeader(http.StatusOK)
 	json.NewEncoder(writer).Encode(execution)
 }

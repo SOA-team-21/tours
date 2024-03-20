@@ -41,3 +41,15 @@ func (service *TourExecutionService) Create(token *model.TourPurchaseToken) (*mo
 	execution.Tasks = tasks
 	return &execution, nil
 }
+
+func (service *TourExecutionService) QuitExecution(id string) (*model.TourExecution, error) {
+	execution, err := service.Repo.GetExecution(id)
+	if err != nil {
+		return nil, err
+	}
+	execution.Status = model.Abandoned
+	if err := service.Repo.Update(execution); err != nil {
+		return nil, err
+	}
+	return execution, nil
+}
