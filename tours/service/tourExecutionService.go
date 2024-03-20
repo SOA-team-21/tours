@@ -61,7 +61,7 @@ func (service *TourExecutionService) QuitExecution(id string) (*model.TourExecut
 
 func (service *TourExecutionService) UpdatePosition(currentPosition *model.Position, id string) (*model.TourExecution, error) {
 	completedTasks := true
-	execution, err := service.Repo.GetExecution(id)
+	execution, err := service.Repo.GetExecutionWithoutDoneTasks(id)
 	if err != nil {
 		return nil, err
 	}
