@@ -27,7 +27,7 @@ func (repo *TourExecutionRepo) CreateExecution(tourExecution *model.TourExecutio
 
 func (repo *TourExecutionRepo) GetExecution(id string) (*model.TourExecution, error) {
 	execution := model.TourExecution{}
-	dbResult := repo.DatabaseConnection.First(&execution, "id = ?", id)
+	dbResult := repo.DatabaseConnection.Preload("Tasks").First(&execution, "id = ?", id)
 	if dbResult.Error != nil {
 		return nil, dbResult.Error
 	}

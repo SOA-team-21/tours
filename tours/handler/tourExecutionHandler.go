@@ -45,3 +45,23 @@ func (handler *TourExecutionHandler) QuitExecution(writer http.ResponseWriter, r
 	writer.WriteHeader(http.StatusOK)
 	json.NewEncoder(writer).Encode(execution)
 }
+
+func (handler *TourExecutionHandler) UpdatePosition(writer http.ResponseWriter, req *http.Request) {
+	var currenPosition model.Position
+	id := mux.Vars(req)["id"]
+	log.Printf("TourExecution sa id-em %s", id)
+	err := json.NewDecoder(req.Body).Decode(&currenPosition)
+	if err != nil {
+		println("Error while parsing json")
+		writer.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	execution, err := handler.Service.UpdatePosition(&currenPosition, id)
+	writer.Header().Set("Content-Type", "application/json")
+	if err != nil {
+		writer.WriteHeader(http.StatusNotFound)
+		return
+	}
+	writer.WriteHeader(http.StatusOK)
+	json.NewEncoder(writer).Encode(execution)
+}
