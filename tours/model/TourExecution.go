@@ -4,9 +4,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
-	"time"
 
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -30,7 +28,6 @@ type TourExecution struct {
 }
 
 func (execution *TourExecution) BeforeCreate(scope *gorm.DB) error {
-	execution.Id = int64(uuid.New().ID()) + time.Now().UnixNano()/int64(time.Microsecond)
 	return nil
 }
 

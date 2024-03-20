@@ -3,7 +3,6 @@ package model
 import (
 	"time"
 
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -16,6 +15,5 @@ type PointTask struct {
 }
 
 func (task *PointTask) BeforeCreate(scope *gorm.DB) error {
-	task.Id = int64(uuid.New().ID()) + time.Now().UnixNano()/int64(time.Microsecond)
 	return nil
 }
