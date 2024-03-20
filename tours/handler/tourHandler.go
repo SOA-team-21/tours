@@ -67,9 +67,50 @@ func (handler *TourHandler) Update(writer http.ResponseWriter, req *http.Request
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
 	tour, err := handler.TourService.Update(&Tour)
 	if err != nil {
 		println("Error while updating a Tour")
+		writer.WriteHeader(http.StatusExpectationFailed)
+		return
+	}
+	writer.WriteHeader(http.StatusCreated)
+	writer.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(writer).Encode(tour)
+}
+
+func (handler *TourHandler) Publish(writer http.ResponseWriter, req *http.Request) {
+	var Tour model.Tour
+	err := json.NewDecoder(req.Body).Decode(&Tour)
+	if err != nil {
+		println("Error while parsing json")
+		writer.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	tour, err := handler.TourService.Publish(&Tour)
+	if err != nil {
+		println("Error while publishing tour")
+		writer.WriteHeader(http.StatusExpectationFailed)
+		return
+	}
+	writer.WriteHeader(http.StatusCreated)
+	writer.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(writer).Encode(tour)
+}
+
+func (handler *TourHandler) Archive(writer http.ResponseWriter, req *http.Request) {
+	var Tour model.Tour
+	err := json.NewDecoder(req.Body).Decode(&Tour)
+	if err != nil {
+		println("Error while parsing json")
+		writer.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	tour, err := handler.TourService.Archive(&Tour)
+	if err != nil {
+		println("Error while archiving tour")
 		writer.WriteHeader(http.StatusExpectationFailed)
 		return
 	}

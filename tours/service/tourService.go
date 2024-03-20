@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"time"
 
 	"tours.xws.com/model"
 	"tours.xws.com/repo"
@@ -48,6 +49,31 @@ func (service *TourService) Update(tour *model.Tour) (*model.Tour, error) {
 	// for i := range tour.KeyPoints {
 	// 	service.KeyPointRepo.UpdateKeyPoint(&tour.KeyPoints[i])
 	// }
+	return tour, nil
+}
+
+func (service *TourService) Publish(tour *model.Tour) (*model.Tour, error) {
+	fmt.Println("Status ture pre ažuriranja:", tour.Status)
+	tour.Status = 1
+	tour.PublishTime = time.Now()
+
+	err := service.Repo.UpdateTour(tour)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println("Status ture posle ažuriranja:", tour.Status)
+	return tour, nil
+}
+
+func (service *TourService) Archive(tour *model.Tour) (*model.Tour, error) {
+	tour.Status = 2
+	tour.PublishTime = time.Now()
+
+	err := service.Repo.UpdateTour(tour)
+	if err != nil {
+		return nil, err
+	}
 	return tour, nil
 }
 
