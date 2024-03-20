@@ -24,3 +24,29 @@ func (repo *TourExecutionRepo) CreateExecution(tourExecution *model.TourExecutio
 	}
 	return tourExecution, nil
 }
+
+func (repo *TourExecutionRepo) GetExecution(id string) (*model.TourExecution, error) {
+	execution := model.TourExecution{}
+	dbResult := repo.DatabaseConnection.Preload("Tasks").First(&execution, "id = ?", id)
+	if dbResult.Error != nil {
+		return nil, dbResult.Error
+	}
+	return &execution, nil
+}
+
+func (repo *TourExecutionRepo) GetExecutionWithoutDoneTasks(id string) (*model.TourExecution, error) {
+	execution := model.TourExecution{}
+	dbResult := repo.DatabaseConnection.Preload("Tasks", "done = ?", false).First(&execution, "id = ?", id)
+	if dbResult.Error != nil {
+		return nil, dbResult.Error
+	}
+	return &execution, nil
+}
+
+func (repo *TourExecutionRepo) Update(execution *model.TourExecution) error {
+	dbResult := repo.DatabaseConnection.Save(execution)
+	if dbResult.Error != nil {
+		return dbResult.Error
+	}
+	return nil
+}

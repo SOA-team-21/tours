@@ -44,6 +44,8 @@ func startServer(handler *handler.TourHandler, keyPointHandler *handler.KeyPoint
 
 	//TOUREXECUTIONS
 	router.HandleFunc("/tourexecution/create", tourExeHandler.Create).Methods("POST")
+	router.HandleFunc("/tourexecution/quit-execution/{id}", tourExeHandler.QuitExecution).Methods("PATCH")
+	router.HandleFunc("/tourexecution/update-position/{id}", tourExeHandler.UpdatePosition).Methods("PUT")
 
 	println("Server starting")
 	log.Fatal(http.ListenAndServe(":88", router)) //Port number must be different for different servers (because all run on localhost)

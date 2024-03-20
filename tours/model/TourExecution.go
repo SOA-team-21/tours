@@ -8,8 +8,6 @@ import (
 	"gorm.io/gorm"
 )
 
-const _pointProximity = 100
-
 type TourExecutionStatus int
 
 const (
