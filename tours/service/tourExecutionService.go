@@ -33,8 +33,9 @@ func (service *TourExecutionService) Create(token *model.TourPurchaseToken) (*mo
 	// Velika nuzda -> sve ok
 	points, _ := service.KeyPointRepo.GetAllByTour(fmt.Sprint(token.TourId))
 	tasks := make([]model.PointTask, len(points))
-	task := model.PointTask{}
 	for i, point := range points {
+		task := model.PointTask{}
+		task.Id = 0
 		task.TourExecutionId = execution.Id
 		task.KeyPointId = point.Id
 		if err := service.TaskRepo.CreateTask(&task); err != nil {
