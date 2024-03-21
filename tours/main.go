@@ -21,14 +21,14 @@ func initDB() *gorm.DB {
 		print(err)
 		return nil
 	}
-	err = database.AutoMigrate(&model.Tour{}, &model.KeyPoint{}, &model.TourExecution{}, &model.PointTask{}, &model.RequiredTime{})
+	err = database.AutoMigrate(&model.Tour{}, &model.KeyPoint{}, &model.TourExecution{}, &model.PointTask{}, &model.RequiredTime{}, &model.Preference{})
 	if err != nil {
 		log.Fatalf("Error migrating models: %v", err)
 	}
 	return database
 }
 
-func startServer(handler *handler.TourHandler, keyPointHandler *handler.KeyPointHandler, tourExeHandler *handler.TourExecutionHandler) {
+func startServer(handler *handler.TourHandler, keyPointHandler *handler.KeyPointHandler, tourExeHandler *handler.TourExecutionHandler, preferenceHandler *handler.PreferenceHandler) {
 	router := mux.NewRouter().StrictSlash(true)
 
 	//TOURS
@@ -46,6 +46,12 @@ func startServer(handler *handler.TourHandler, keyPointHandler *handler.KeyPoint
 
 	//TOUREXECUTIONS
 	router.HandleFunc("/tourexecution/create", tourExeHandler.Create).Methods("POST")
+
+	//PREFERENCES
+	router.HandleFunc("/preference/getAllByUserId/{userId}", preferenceHandler.GetAllByUser).Methods("GET")
+	router.HandleFunc("/preference/create", preferenceHandler.Create).Methods("POST")
+	router.HandleFunc("/preference/update", preferenceHandler.Update).Methods("PUT")
+	router.HandleFunc("/preference/delete/{preferenceId}", preferenceHandler.Delete).Methods("DELETE")
 
 	println("Server starting")
 	log.Fatal(http.ListenAndServe(":88", router)) //Port number must be different for different servers (because all run on localhost)
@@ -72,5 +78,9 @@ func main() {
 	tourExecutionService := &service.TourExecutionService{Repo: tourExecutionRepo, KeyPointRepo: keyPointRepo, TaskRepo: pointTaskRepo}
 	tourExecutionHandler := &handler.TourExecutionHandler{Service: tourExecutionService}
 
-	startServer(tourHandler, keyPointHandler, tourExecutionHandler)
+	preferenceRepo := &repo.PreferenceRepo{DatabaseConnection: database}
+	preferenceService := &service.PreferenceService{PreferenceRepo: preferenceRepo}
+	preferenceHandler := &handler.PreferenceHandler{PreferenceService: preferenceService}
+
+	startServer(tourHandler, keyPointHandler, tourExecutionHandler, preferenceHandler)
 }
