@@ -46,6 +46,8 @@ func startServer(handler *handler.TourHandler, keyPointHandler *handler.KeyPoint
 
 	//TOUREXECUTIONS
 	router.HandleFunc("/tourexecution/create", tourExeHandler.Create).Methods("POST")
+	router.HandleFunc("/tourexecution/quit-execution/{id}", tourExeHandler.QuitExecution).Methods("PATCH")
+	router.HandleFunc("/tourexecution/update-position/{id}", tourExeHandler.UpdatePosition).Methods("PUT")
 
 	//PREFERENCES
 	router.HandleFunc("/preference/getAllByUserId/{userId}", preferenceHandler.GetAllByUser).Methods("GET")
