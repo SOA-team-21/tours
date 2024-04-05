@@ -5,8 +5,8 @@ services:
     build:
       dockerfile: Dockerfile
       context: ./tours
-    image: microservice-tours:improve1
-    container_name: tours-container
+    image: microservice-tours:improve1111
+    container_name: tours-containerr
     restart: always
     networks:
       - servers
@@ -14,6 +14,20 @@ services:
       - "88:88"
     depends_on:
       - database
+
+  encounters:
+    build:
+      dockerfile: Dockerfile
+      context: ../encounters/encounters
+    image: microservice-encounters:improve1111
+    container_name: encounters-containerr
+    restart: always
+    networks:
+      - servers
+    ports:
+      - "8082:8082"
+    depends_on:
+      - enc-database
 
   database:
     image: postgres:13
@@ -30,11 +44,69 @@ services:
     ports:
       - "5432:5432"
 
+  enc-database:
+    image: postgres:13
+    restart: always
+    networks:
+      - servers
+    environment:
+      POSTGRES_PASSWORD: super
+      POSTGRES_USER: postgres
+      POSTGRES_DB: soa_encounters
+      PGSEARCHPATH: encounters
+    volumes:
+      - enc-database-data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+  # monolith-database:
+  #   image: postgres:13
+  #   restart: always
+  #   networks:
+  #     - servers
+  #   environment:
+  #     POSTGRES_PASSWORD: super
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_DB: explorer-v1
+  #     PGSEARCHPATH: monolith
+  #   volumes:
+  #     - monolith-database-data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5434:5432"
+
+  # monolith:
+  #   build:
+  #     dockerfile: Dockerfile
+  #     context: ../back-end
+  #   image: monolith-back-end:1
+  #   container_name: monolith-container
+  #   restart: always
+  #   networks:
+  #     - servers
+  #   ports:
+  #     - "8083:8083" 
+  #   depends_on:
+  #     - monolith-database
+
 volumes:
   database-data:
     name: tours-database-data
 
+  enc-database-data:
+    name: enc-database-data
+
+  # monolith-database-data:
+  #   name: monolith-database-data
+
 networks:
+  # tours:
+  #   name: tours
+  #   driver: bridge
+
+  # encounters:
+  #   name: encounters
+  #   driver: bridge
+
   servers:
     name: servers
     driver: bridge
