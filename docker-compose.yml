@@ -5,8 +5,8 @@ services:
     build:
       dockerfile: Dockerfile
       context: ./tours
-    image: microservice-tours:improve1111
-    container_name: tours-containerr
+    image: microservice-tours:final
+    container_name: tours-cont
     restart: always
     networks:
       - servers
@@ -19,8 +19,8 @@ services:
     build:
       dockerfile: Dockerfile
       context: ../encounters/encounters
-    image: microservice-encounters:improve1111
-    container_name: encounters-containerr
+    image: microservice-encounters:final
+    container_name: encounters-cont
     restart: always
     networks:
       - servers
@@ -99,13 +99,6 @@ volumes:
   #   name: monolith-database-data
 
 networks:
-  # tours:
-  #   name: tours
-  #   driver: bridge
-
-  # encounters:
-  #   name: encounters
-  #   driver: bridge
 
   servers:
     name: servers
