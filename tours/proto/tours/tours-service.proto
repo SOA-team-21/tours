@@ -1,11 +1,17 @@
 syntax = "proto3";
 
-package tour;
+package tours;
 
-option go_package = "tours/proto/tour";
+option go_package = "tours/proto/tours";
+import "google/api/timestamp.proto";
 
 service ToursService{
-
+    rpc Get(UserIdRequest) returns(TourResponse){}
+    rpc GetAllByAuthor(UserIdRequest) returns(ToursResponse){}
+    rpc Create(TourResponse) returns(TourResponse){}
+    rpc Update(TourResponse) returns(TourResponse){}
+    rpc Publish(TourResponse) returns(TourResponse){}
+    rpc Archive(TourResponse) returns(TourResponse){}
 }
 
 message ToursResponse{
