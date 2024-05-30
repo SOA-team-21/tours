@@ -31,13 +31,13 @@ func initDB() *gorm.DB {
 func startServer(handler *handler.TourHandler, keyPointHandler *handler.KeyPointHandler, tourExeHandler *handler.TourExecutionHandler, preferenceHandler *handler.PreferenceHandler) {
 	router := mux.NewRouter().StrictSlash(true)
 
-	//TOURS
-	router.HandleFunc("/tour/create", handler.Create).Methods("POST")
-	router.HandleFunc("/tour/getTour/{id}", handler.Get).Methods("GET")
-	router.HandleFunc("/tour/getAllByAuthor/{id}", handler.GetAllByAuthor).Methods("GET")
-	router.HandleFunc("/tour/update", handler.Update).Methods("PUT")
-	router.HandleFunc("/tour/publish", handler.Publish).Methods("PUT")
-	router.HandleFunc("/tour/archive", handler.Archive).Methods("PUT")
+	// //TOURS
+	// router.HandleFunc("/tour/create", handler.Create).Methods("POST")
+	// router.HandleFunc("/tour/getTour/{id}", handler.Get).Methods("GET")
+	// router.HandleFunc("/tour/getAllByAuthor/{id}", handler.GetAllByAuthor).Methods("GET")
+	// router.HandleFunc("/tour/update", handler.Update).Methods("PUT")
+	// router.HandleFunc("/tour/publish", handler.Publish).Methods("PUT")
+	// router.HandleFunc("/tour/archive", handler.Archive).Methods("PUT")
 
 	//KEYPOINTS
 	router.HandleFunc("/keypoint/create", keyPointHandler.Create).Methods("POST")

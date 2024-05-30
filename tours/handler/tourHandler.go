@@ -1,120 +1,78 @@
 package handler
 
 import (
-	"encoding/json"
-	"log"
-	"net/http"
-
-	"github.com/gorilla/mux"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"tours.xws.com/model"
+	"tours.xws.com/proto/tours"
 	"tours.xws.com/service"
 )
 
 type TourHandler struct {
+	tours.UnimplementedToursServiceServer
 	TourService *service.TourService
 }
 
-func (handler *TourHandler) Get(writer http.ResponseWriter, req *http.Request) {
-	id := mux.Vars(req)["id"]
-	log.Printf("Tour sa id-em %s", id)
-	point, err := handler.TourService.FindTour(id)
-	writer.Header().Set("Content-Type", "application/json")
-	if err != nil {
-		writer.WriteHeader(http.StatusNotFound)
-		return
+func TourToRpc(tour *model.Tour) *tours.TourResponse {
+	return &tours.TourResponse{
+		Id:            tour.Id,
+		Name:          tour.Name,
+		Description:   tour.Description,
+		Difficult:     tour.Difficult,
+		Price:         float32(tour.Price),
+		Status:        tours.TourStatus(tour.Status),
+		AuthorId:      tour.AuthorId,
+		Length:        float32(tour.Length),
+		PublishTime:   timestamppb.New(tour.PublishTime),
+		ArchiveTime:   timestamppb.New(tour.ArchiveTime),
+		MyOwn:         tour.MyOwn,
+		KeyPoints:     KeyPointsToRpc(tour.KeyPoints),
+		RequiredTimes: RequiredTimesToRpc(tour.RequiredTimes),
+		Tags:          tour.Tags,
 	}
-	writer.WriteHeader(http.StatusOK)
-	json.NewEncoder(writer).Encode(point)
 }
 
-func (handler *TourHandler) GetAllByAuthor(writer http.ResponseWriter, req *http.Request) {
-	id := mux.Vars(req)["id"]
-	log.Printf("Author sa id-em %s", id)
-	tours, err := handler.TourService.FindAllByAuthor(id)
-	writer.Header().Set("Content-Type", "application/json")
-	if err != nil {
-		writer.WriteHeader(http.StatusNotFound)
-		return
+func ToursToRpc(points []model.Tour) *tours.ToursResponse {
+	result := make([]*tours.TourResponse, len(points))
+	for i, e := range points {
+		result[i] = TourToRpc(&e)
 	}
-	writer.WriteHeader(http.StatusOK)
-	json.NewEncoder(writer).Encode(tours)
+	return &tours.ToursResponse{Tours: result}
 }
 
-func (handler *TourHandler) Create(writer http.ResponseWriter, req *http.Request) {
-	var Tour model.Tour
-	err := json.NewDecoder(req.Body).Decode(&Tour)
-	if err != nil {
-		println("Error while parsing json")
-		writer.WriteHeader(http.StatusBadRequest)
-		return
+func KeyPointToRpc(point *model.KeyPoint) *tours.KeyPoint {
+	return &tours.KeyPoint{
+		Id:          point.Id,
+		TourId:      point.TourId,
+		Latitude:    float32(point.Latitude),
+		Longitude:   float32(point.Longitude),
+		Name:        point.Name,
+		Description: point.Description,
+		Picture:     point.Picture,
+		Public:      point.Public,
 	}
-	tour, err := handler.TourService.Create(&Tour)
-	if err != nil {
-		println("Error while creating a new Tour")
-		writer.WriteHeader(http.StatusExpectationFailed)
-		return
-	}
-	writer.WriteHeader(http.StatusCreated)
-	writer.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(writer).Encode(tour)
 }
 
-func (handler *TourHandler) Update(writer http.ResponseWriter, req *http.Request) {
-	var Tour model.Tour
-	err := json.NewDecoder(req.Body).Decode(&Tour)
-	if err != nil {
-		println("Error while parsing json")
-		writer.WriteHeader(http.StatusBadRequest)
-		return
+func KeyPointsToRpc(points []model.KeyPoint) []*tours.KeyPoint {
+	result := make([]*tours.KeyPoint, len(points))
+	for i, e := range points {
+		result[i] = KeyPointToRpc(&e)
 	}
-
-	tour, err := handler.TourService.Update(&Tour)
-	if err != nil {
-		println("Error while updating a Tour")
-		writer.WriteHeader(http.StatusExpectationFailed)
-		return
-	}
-	writer.WriteHeader(http.StatusCreated)
-	writer.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(writer).Encode(tour)
+	return result
 }
 
-func (handler *TourHandler) Publish(writer http.ResponseWriter, req *http.Request) {
-	var Tour model.Tour
-	err := json.NewDecoder(req.Body).Decode(&Tour)
-	if err != nil {
-		println("Error while parsing json")
-		writer.WriteHeader(http.StatusBadRequest)
-		return
+func RequiredTimeToRpc(reqTime *model.RequiredTime) *tours.RequiredTime {
+	return &tours.RequiredTime{
+		Id:            reqTime.Id,
+		TourId:        reqTime.TourId,
+		TransportType: tours.Transport(reqTime.Transport),
+		Minutes:       int64(reqTime.Minutes),
 	}
-
-	tour, err := handler.TourService.Publish(&Tour)
-	if err != nil {
-		println("Error while publishing tour")
-		writer.WriteHeader(http.StatusExpectationFailed)
-		return
-	}
-	writer.WriteHeader(http.StatusCreated)
-	writer.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(writer).Encode(tour)
 }
 
-func (handler *TourHandler) Archive(writer http.ResponseWriter, req *http.Request) {
-	var Tour model.Tour
-	err := json.NewDecoder(req.Body).Decode(&Tour)
-	if err != nil {
-		println("Error while parsing json")
-		writer.WriteHeader(http.StatusBadRequest)
-		return
+func RequiredTimesToRpc(times []model.RequiredTime) []*tours.RequiredTime {
+	result := make([]*tours.RequiredTime, len(times))
+	for i, e := range times {
+		result[i] = RequiredTimeToRpc(&e)
 	}
-
-	tour, err := handler.TourService.Archive(&Tour)
-	if err != nil {
-		println("Error while archiving tour")
-		writer.WriteHeader(http.StatusExpectationFailed)
-		return
-	}
-	writer.WriteHeader(http.StatusCreated)
-	writer.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(writer).Encode(tour)
+	return result
 }
