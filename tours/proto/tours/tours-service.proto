@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package tour;
+
+option go_package = "followers-management/followers/proto/tour";
+
+service ToursService{
+
+}
+
+message ToursResponse{
+    repeated TourResponse Tours = 1;
+}
+
+message TourResponse{
+    int64 Id = 1;
+	string Name = 2;
+	string Description = 3;
+	int64 Difficult = 4;
+	float Price = 5;
+	TourStatus Status = 6;
+	int64 AuthorId = 7;
+	float Length = 8;
+	google.protobuf.Timestamp PublishTime = 9;
+	google.protobuf.Timestamp ArchiveTime = 10;
+	bool MyOwn = 11;
+	repeated KeyPoint KeyPoints = 12;
+	repeated RequiredTime RequiredTimes = 13;
+	repeated string Tags = 14;
+}
+
+message KeyPoint{
+    int64 Id = 1;
+	int64 TourId = 2;
+	float Latitude = 3;
+	float Longitude = 4;
+	string Name = 5;
+	string Description = 6;
+	string Picture = 7;
+	bool Public = 8;
+}
+
+message RequiredTime {
+    int64 Id = 1;
+	int64 TourId = 2;
+	Transport TransportType = 3;
+	int64 Minutes = 4;
+}
+
+enum Transport {
+    Walk = 0;
+	Drive = 1;
+	Bicycle = 2;
+}
+
+enum TourStatus {
+    Draft = 0;
+	Published = 1;
+	Archived = 2;
+}
+
+message UserIdRequest{
+    int64 UserId = 1;
+}
