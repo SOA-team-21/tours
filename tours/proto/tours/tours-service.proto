@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package tour;
 
-option go_package = "followers-management/followers/proto/tour";
+option go_package = "tours/proto/tour";
 
 service ToursService{
 
