@@ -1,6 +1,9 @@
 package handler
 
 import (
+	"context"
+	"fmt"
+
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"tours.xws.com/model"
 	"tours.xws.com/proto/tours"
@@ -10,6 +13,39 @@ import (
 type TourHandler struct {
 	tours.UnimplementedToursServiceServer
 	TourService *service.TourService
+}
+
+func (handler *TourHandler) Get(ctx context.Context, request *tours.UserIdRequest) (*tours.TourResponse, error) {
+
+	userId := fmt.Sprint(request.UserId)
+
+	var fromDb, err = handler.TourService.FindTour(userId)
+	if err != nil {
+		return &tours.TourResponse{}, err
+	}
+	return TourToRpc(fromDb), nil
+}
+
+func (handler *TourHandler) GetAllByAuthor(ctx context.Context, request *tours.UserIdRequest) (*tours.ToursResponse, error) {
+
+	userId := fmt.Sprint(request.UserId)
+
+	var fromDb, err = handler.TourService.FindAllByAuthor(userId)
+	if err != nil {
+		return &tours.ToursResponse{}, err
+	}
+	return ToursToRpc(fromDb), nil
+}
+
+func (handler *TourHandler) Create(ctx context.Context, request *tours.TourResponse) (*tours.TourResponse, error) {
+	tour := RpcToTour(request)
+
+	var fromDb, err = handler.TourService.Create(tour)
+	if err != nil {
+		return &tours.TourResponse{}, err
+	}
+	return TourToRpc(fromDb), nil
+
 }
 
 func TourToRpc(tour *model.Tour) *tours.TourResponse {
@@ -73,6 +109,71 @@ func RequiredTimesToRpc(times []model.RequiredTime) []*tours.RequiredTime {
 	result := make([]*tours.RequiredTime, len(times))
 	for i, e := range times {
 		result[i] = RequiredTimeToRpc(&e)
+	}
+	return result
+}
+
+func RpcToTour(rpcTour *tours.TourResponse) *model.Tour {
+	return &model.Tour{
+		Id:            rpcTour.Id,
+		Name:          rpcTour.Name,
+		Description:   rpcTour.Description,
+		Difficult:     int64(rpcTour.Difficult),
+		Price:         float64(rpcTour.Price),
+		Status:        model.TourStatus(rpcTour.Status),
+		AuthorId:      rpcTour.AuthorId,
+		Length:        float64(rpcTour.Length),
+		PublishTime:   rpcTour.PublishTime.AsTime(),
+		ArchiveTime:   rpcTour.ArchiveTime.AsTime(),
+		MyOwn:         rpcTour.MyOwn,
+		KeyPoints:     RpcToKeyPoints(rpcTour.KeyPoints),
+		RequiredTimes: RpcToRequiredTimes(rpcTour.RequiredTimes),
+		Tags:          rpcTour.Tags,
+	}
+}
+
+func RpcsToTours(rpcTours *tours.ToursResponse) []model.Tour {
+	result := make([]model.Tour, len(rpcTours.Tours))
+	for i, e := range rpcTours.Tours {
+		result[i] = *RpcToTour(e)
+	}
+	return result
+}
+
+func RpcToKeyPoint(rpcPoint *tours.KeyPoint) *model.KeyPoint {
+	return &model.KeyPoint{
+		Id:          rpcPoint.Id,
+		TourId:      rpcPoint.TourId,
+		Latitude:    float64(rpcPoint.Latitude),
+		Longitude:   float64(rpcPoint.Longitude),
+		Name:        rpcPoint.Name,
+		Description: rpcPoint.Description,
+		Picture:     rpcPoint.Picture,
+		Public:      rpcPoint.Public,
+	}
+}
+
+func RpcToKeyPoints(rpcPoints []*tours.KeyPoint) []model.KeyPoint {
+	result := make([]model.KeyPoint, len(rpcPoints))
+	for i, e := range rpcPoints {
+		result[i] = *RpcToKeyPoint(e)
+	}
+	return result
+}
+
+func RpcToRequiredTime(rpcTime *tours.RequiredTime) *model.RequiredTime {
+	return &model.RequiredTime{
+		Id:        rpcTime.Id,
+		TourId:    rpcTime.TourId,
+		Transport: model.TransportType(rpcTime.TransportType),
+		Minutes:   int(rpcTime.Minutes),
+	}
+}
+
+func RpcToRequiredTimes(rpcTimes []*tours.RequiredTime) []model.RequiredTime {
+	result := make([]model.RequiredTime, len(rpcTimes))
+	for i, e := range rpcTimes {
+		result[i] = *RpcToRequiredTime(e)
 	}
 	return result
 }
