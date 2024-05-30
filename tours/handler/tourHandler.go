@@ -45,7 +45,36 @@ func (handler *TourHandler) Create(ctx context.Context, request *tours.TourRespo
 		return &tours.TourResponse{}, err
 	}
 	return TourToRpc(fromDb), nil
+}
 
+func (handler *TourHandler) Update(ctx context.Context, request *tours.TourResponse) (*tours.TourResponse, error) {
+	tour := RpcToTour(request)
+
+	var fromDb, err = handler.TourService.Update(tour)
+	if err != nil {
+		return &tours.TourResponse{}, err
+	}
+	return TourToRpc(fromDb), nil
+}
+
+func (handler *TourHandler) Publish(ctx context.Context, request *tours.TourResponse) (*tours.TourResponse, error) {
+	tour := RpcToTour(request)
+
+	var fromDb, err = handler.TourService.Publish(tour)
+	if err != nil {
+		return &tours.TourResponse{}, err
+	}
+	return TourToRpc(fromDb), nil
+}
+
+func (handler *TourHandler) Archive(ctx context.Context, request *tours.TourResponse) (*tours.TourResponse, error) {
+	tour := RpcToTour(request)
+
+	var fromDb, err = handler.TourService.Archive(tour)
+	if err != nil {
+		return &tours.TourResponse{}, err
+	}
+	return TourToRpc(fromDb), nil
 }
 
 func TourToRpc(tour *model.Tour) *tours.TourResponse {

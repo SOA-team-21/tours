@@ -1,20 +1,26 @@
 package main
 
 import (
+	"fmt"
 	"log"
-	"net/http"
+	"net"
+	"os"
+	"os/signal"
+	"syscall"
 
-	"github.com/gorilla/mux"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"tours.xws.com/handler"
 	"tours.xws.com/model"
+	"tours.xws.com/proto/tours"
 	"tours.xws.com/repo"
 	"tours.xws.com/service"
 )
 
 func initDB() *gorm.DB {
-	dsn := "user=postgres password=super dbname=soa_tours host=tours-database port=5432 sslmode=disable"
+	dsn := "user=postgres password=super dbname=soa_tours host=localhost port=5432 sslmode=disable"
 	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
@@ -28,37 +34,6 @@ func initDB() *gorm.DB {
 	return database
 }
 
-func startServer(handler *handler.TourHandler, keyPointHandler *handler.KeyPointHandler, tourExeHandler *handler.TourExecutionHandler, preferenceHandler *handler.PreferenceHandler) {
-	router := mux.NewRouter().StrictSlash(true)
-
-	// //TOURS
-	// router.HandleFunc("/tour/create", handler.Create).Methods("POST")
-	// router.HandleFunc("/tour/getTour/{id}", handler.Get).Methods("GET")
-	// router.HandleFunc("/tour/getAllByAuthor/{id}", handler.GetAllByAuthor).Methods("GET")
-	// router.HandleFunc("/tour/update", handler.Update).Methods("PUT")
-	// router.HandleFunc("/tour/publish", handler.Publish).Methods("PUT")
-	// router.HandleFunc("/tour/archive", handler.Archive).Methods("PUT")
-
-	//KEYPOINTS
-	router.HandleFunc("/keypoint/create", keyPointHandler.Create).Methods("POST")
-	router.HandleFunc("/keypoint/getKeyPoint/{id}", keyPointHandler.Get).Methods("GET")
-	router.HandleFunc("/keypoint/getAllByTour/{tourId}", keyPointHandler.GetAllByTour).Methods("GET")
-
-	//TOUREXECUTIONS
-	router.HandleFunc("/tourexecution/create", tourExeHandler.Create).Methods("POST")
-	router.HandleFunc("/tourexecution/quit-execution/{id}", tourExeHandler.QuitExecution).Methods("PATCH")
-	router.HandleFunc("/tourexecution/update-position/{id}", tourExeHandler.UpdatePosition).Methods("PUT")
-
-	//PREFERENCES
-	router.HandleFunc("/preference/getAllByUserId/{userId}", preferenceHandler.GetAllByUser).Methods("GET")
-	router.HandleFunc("/preference/create", preferenceHandler.Create).Methods("POST")
-	router.HandleFunc("/preference/update", preferenceHandler.Update).Methods("PUT")
-	router.HandleFunc("/preference/delete/{preferenceId}", preferenceHandler.Delete).Methods("DELETE")
-
-	println("Server starting")
-	log.Fatal(http.ListenAndServe(":88", router)) //Port number must be different for different servers (because all run on localhost)
-}
-
 func main() {
 	database := initDB()
 	if database == nil {
@@ -67,22 +42,39 @@ func main() {
 	}
 
 	keyPointRepo := &repo.KeyPointRepository{DatabaseConnection: database}
-	keyPointService := &service.KeyPointService{Repo: keyPointRepo}
-	keyPointHandler := &handler.KeyPointHandler{KeyPointService: keyPointService}
-
 	tourRepo := &repo.TourRepository{DatabaseConnection: database}
 	tourService := &service.TourService{Repo: tourRepo, KeyPointRepo: keyPointRepo}
 	tourHandler := &handler.TourHandler{TourService: tourService}
 
-	pointTaskRepo := &repo.PointTaskRepo{DatabaseConnection: database}
+	lis, err := net.Listen("tcp", ":88")
+	fmt.Println("Running gRPC on port 88")
+	if err != nil {
+		log.Fatalln(err)
+	}
 
-	tourExecutionRepo := &repo.TourExecutionRepo{DatabaseConnection: database}
-	tourExecutionService := &service.TourExecutionService{Repo: tourExecutionRepo, KeyPointRepo: keyPointRepo, TaskRepo: pointTaskRepo}
-	tourExecutionHandler := &handler.TourExecutionHandler{Service: tourExecutionService}
+	defer func(listener net.Listener) {
+		err := listener.Close()
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}(lis)
 
-	preferenceRepo := &repo.PreferenceRepo{DatabaseConnection: database}
-	preferenceService := &service.PreferenceService{PreferenceRepo: preferenceRepo}
-	preferenceHandler := &handler.PreferenceHandler{PreferenceService: preferenceService}
+	grpcServer := grpc.NewServer()
+	reflection.Register(grpcServer)
+	fmt.Println("Registered gRPC server")
 
-	startServer(tourHandler, keyPointHandler, tourExecutionHandler, preferenceHandler)
+	tours.RegisterToursServiceServer(grpcServer, tourHandler)
+	go func() {
+		if err := grpcServer.Serve(lis); err != nil {
+			log.Fatalln(err)
+		}
+	}()
+	fmt.Println("Serving gRPC")
+
+	stopCh := make(chan os.Signal)
+	signal.Notify(stopCh, syscall.SIGTERM)
+
+	<-stopCh
+
+	grpcServer.Stop()
 }
