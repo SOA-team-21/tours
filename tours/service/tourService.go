@@ -1,9 +1,11 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"time"
 
+	"go.opentelemetry.io/otel"
 	"tours.xws.com/model"
 	"tours.xws.com/repo"
 )
@@ -13,8 +15,12 @@ type TourService struct {
 	KeyPointRepo *repo.KeyPointRepository
 }
 
-func (service *TourService) FindTour(id string) (*model.Tour, error) {
-	Tour, err := service.Repo.Get(id)
+func (service *TourService) FindTour(id string, ctx context.Context) (*model.Tour, error) {
+	tracer := otel.Tracer("tours-service")
+	traceCtx, span := tracer.Start(ctx, "Get Service")
+	defer span.End()
+
+	Tour, err := service.Repo.Get(id, traceCtx)
 	if err != nil {
 		return nil, fmt.Errorf(fmt.Sprintf("menu item with id %s not found", id))
 	}
@@ -22,8 +28,12 @@ func (service *TourService) FindTour(id string) (*model.Tour, error) {
 	return &Tour, nil
 }
 
-func (service *TourService) FindAllByAuthor(authorId string) ([]model.Tour, error) {
-	tours, err := service.Repo.GetAllByAuthor(authorId)
+func (service *TourService) FindAllByAuthor(authorId string, ctx context.Context) ([]model.Tour, error) {
+	tracer := otel.Tracer("tours-service")
+	traceCtx, span := tracer.Start(ctx, "GetAuthors Service")
+	defer span.End()
+
+	tours, err := service.Repo.GetAllByAuthor(authorId, traceCtx)
 	if err != nil {
 		return nil, fmt.Errorf("cannot find tours by author with id %s", authorId)
 	}

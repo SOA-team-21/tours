@@ -1,8 +1,11 @@
 package repo
 
 import (
+	"context"
 	"log"
 
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	"gorm.io/gorm"
 	"tours.xws.com/model"
 )
@@ -12,7 +15,10 @@ type TourRepository struct {
 }
 
 // TOURS
-func (repo *TourRepository) Get(id string) (model.Tour, error) {
+func (repo *TourRepository) Get(id string, ctx context.Context) (model.Tour, error) {
+	tracer := otel.Tracer("tours-repo")
+	_, span := tracer.Start(ctx, "Get Repo")
+	defer span.End()
 	tour := model.Tour{}
 	log.Println("Getting tour...")
 	dbResult := repo.DatabaseConnection.First(&tour, "id = ?", id)
@@ -22,13 +28,18 @@ func (repo *TourRepository) Get(id string) (model.Tour, error) {
 	return tour, nil
 }
 
-func (repo *TourRepository) GetAllByAuthor(authorId string) ([]model.Tour, error) {
+func (repo *TourRepository) GetAllByAuthor(authorId string, ctx context.Context) ([]model.Tour, error) {
+	tracer := otel.Tracer("tours-repo")
+	_, span := tracer.Start(ctx, "GetAuthors Repo")
+	defer span.End()
+
 	tours := []model.Tour{}
 	log.Println("Getting all by author...")
 	dbResult := repo.DatabaseConnection.Find(&tours, "author_id = ?", authorId)
 	if dbResult.Error != nil {
 		return tours, dbResult.Error
 	}
+	span.SetAttributes(attribute.Int("number_of_tours", len(tours)))
 	return tours, nil
 }
 

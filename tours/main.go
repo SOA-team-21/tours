@@ -20,7 +20,7 @@ import (
 	"tours.xws.com/service"
 )
 
-const serviceName = "tours"
+const serviceName = "tours-ms"
 
 func initDB() *gorm.DB {
 	dsn := "user=postgres password=super dbname=soa_tours host=tours-database port=5432 sslmode=disable"

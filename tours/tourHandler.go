@@ -18,12 +18,12 @@ type TourHandler struct {
 
 func (handler *TourHandler) Get(ctx context.Context, request *tours.UserIdRequest) (*tours.TourResponse, error) {
 
-	_, span := tp.Tracer(serviceName).Start(ctx, "tours-get")
+	traceCtx, span := tp.Tracer(serviceName).Start(ctx, "Get Tour")
 	defer func() { span.End() }() // na kraju funkcije zatvori trace
 
 	userId := fmt.Sprint(request.UserId)
 
-	var fromDb, err = handler.TourService.FindTour(userId)
+	var fromDb, err = handler.TourService.FindTour(userId, traceCtx)
 	if err != nil {
 		log.Println("Error while getting tour.")
 		return &tours.TourResponse{}, err
@@ -34,12 +34,12 @@ func (handler *TourHandler) Get(ctx context.Context, request *tours.UserIdReques
 
 func (handler *TourHandler) GetAllByAuthor(ctx context.Context, request *tours.UserIdRequest) (*tours.ToursResponse, error) {
 
-	_, span := tp.Tracer(serviceName).Start(ctx, "tours-getByAuthor")
+	traceCtx, span := tp.Tracer(serviceName).Start(ctx, "Get Tours by Author")
 	defer func() { span.End() }() // na kraju funkcije zatvori trace
 
 	userId := fmt.Sprint(request.UserId)
 
-	var fromDb, err = handler.TourService.FindAllByAuthor(userId)
+	var fromDb, err = handler.TourService.FindAllByAuthor(userId, traceCtx)
 	if err != nil {
 		log.Println("Error while getting tours by author.")
 		return &tours.ToursResponse{}, err
