@@ -23,7 +23,7 @@ import (
 const serviceName = "tours"
 
 func initDB() *gorm.DB {
-	dsn := "user=postgres password=super dbname=soa_tours host=localhost port=5432 sslmode=disable"
+	dsn := "user=postgres password=super dbname=soa_tours host=tours-database port=5432 sslmode=disable"
 	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
