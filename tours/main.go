@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net"
 	"os"
@@ -35,9 +34,11 @@ func initDB() *gorm.DB {
 }
 
 func main() {
+	log.SetOutput(os.Stderr)
+
 	database := initDB()
 	if database == nil {
-		print("FAILED TO CONNECT TO DB")
+		log.Println("FAILED TO CONNECT TO DB")
 		return
 	}
 
@@ -47,7 +48,7 @@ func main() {
 	tourHandler := &handler.TourHandler{TourService: tourService}
 
 	lis, err := net.Listen("tcp", ":88")
-	fmt.Println("Running gRPC on port 88")
+	log.Println("Running gRPC on port 88")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -61,7 +62,7 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 	reflection.Register(grpcServer)
-	fmt.Println("Registered gRPC server")
+	log.Println("Registered gRPC server")
 
 	tours.RegisterToursServiceServer(grpcServer, tourHandler)
 	go func() {
@@ -69,7 +70,7 @@ func main() {
 			log.Fatalln(err)
 		}
 	}()
-	fmt.Println("Serving gRPC")
+	log.Println("Serving gRPC")
 
 	stopCh := make(chan os.Signal)
 	signal.Notify(stopCh, syscall.SIGTERM)

@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"tours.xws.com/model"
@@ -21,8 +22,10 @@ func (handler *TourHandler) Get(ctx context.Context, request *tours.UserIdReques
 
 	var fromDb, err = handler.TourService.FindTour(userId)
 	if err != nil {
+		log.Println("Error while getting tour.")
 		return &tours.TourResponse{}, err
 	}
+	log.Println("Getting tour done.")
 	return TourToRpc(fromDb), nil
 }
 
@@ -32,8 +35,10 @@ func (handler *TourHandler) GetAllByAuthor(ctx context.Context, request *tours.U
 
 	var fromDb, err = handler.TourService.FindAllByAuthor(userId)
 	if err != nil {
+		log.Println("Error while getting tours by author.")
 		return &tours.ToursResponse{}, err
 	}
+	log.Println("Getting tours by author done.")
 	return ToursToRpc(fromDb), nil
 }
 
@@ -42,8 +47,10 @@ func (handler *TourHandler) Create(ctx context.Context, request *tours.TourRespo
 
 	var fromDb, err = handler.TourService.Create(tour)
 	if err != nil {
+		log.Println("Error while creating tour.")
 		return &tours.TourResponse{}, err
 	}
+	log.Println("Creating tour done.")
 	return TourToRpc(fromDb), nil
 }
 
@@ -52,8 +59,10 @@ func (handler *TourHandler) Update(ctx context.Context, request *tours.TourRespo
 
 	var fromDb, err = handler.TourService.Update(tour)
 	if err != nil {
+		log.Println("Error while updating tour.")
 		return &tours.TourResponse{}, err
 	}
+	log.Println("Updating tour done.")
 	return TourToRpc(fromDb), nil
 }
 
@@ -62,8 +71,10 @@ func (handler *TourHandler) Publish(ctx context.Context, request *tours.TourResp
 
 	var fromDb, err = handler.TourService.Publish(tour)
 	if err != nil {
+		log.Println("Error while publishing tour.")
 		return &tours.TourResponse{}, err
 	}
+	log.Println("Publishing tour done.")
 	return TourToRpc(fromDb), nil
 }
 
@@ -72,8 +83,10 @@ func (handler *TourHandler) Archive(ctx context.Context, request *tours.TourResp
 
 	var fromDb, err = handler.TourService.Archive(tour)
 	if err != nil {
+		log.Println("Error while archiving tour.")
 		return &tours.TourResponse{}, err
 	}
+	log.Println("Archiving tour done.")
 	return TourToRpc(fromDb), nil
 }
 
