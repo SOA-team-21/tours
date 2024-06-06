@@ -1,22 +1,26 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"tours.xws.com/handler"
 	"tours.xws.com/model"
 	"tours.xws.com/proto/tours"
 	"tours.xws.com/repo"
 	"tours.xws.com/service"
 )
+
+const serviceName = "tours"
 
 func initDB() *gorm.DB {
 	dsn := "user=postgres password=super dbname=soa_tours host=tours-database port=5432 sslmode=disable"
@@ -36,6 +40,20 @@ func initDB() *gorm.DB {
 func main() {
 	log.SetOutput(os.Stderr)
 
+	// OpenTelemetry
+	var err error
+	tp, err = initTracer()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer func() {
+		if err := tp.Shutdown(context.Background()); err != nil {
+			log.Printf("Error shutting down tracer provider: %v", err)
+		}
+	}()
+	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+
 	database := initDB()
 	if database == nil {
 		log.Println("FAILED TO CONNECT TO DB")
@@ -45,7 +63,7 @@ func main() {
 	keyPointRepo := &repo.KeyPointRepository{DatabaseConnection: database}
 	tourRepo := &repo.TourRepository{DatabaseConnection: database}
 	tourService := &service.TourService{Repo: tourRepo, KeyPointRepo: keyPointRepo}
-	tourHandler := &handler.TourHandler{TourService: tourService}
+	tourHandler := &TourHandler{TourService: tourService}
 
 	lis, err := net.Listen("tcp", ":88")
 	log.Println("Running gRPC on port 88")

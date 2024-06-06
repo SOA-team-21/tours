@@ -1,4 +1,4 @@
-package handler
+package main
 
 import (
 	"context"
@@ -18,6 +18,9 @@ type TourHandler struct {
 
 func (handler *TourHandler) Get(ctx context.Context, request *tours.UserIdRequest) (*tours.TourResponse, error) {
 
+	_, span := tp.Tracer(serviceName).Start(ctx, "tours-get")
+	defer func() { span.End() }() // na kraju funkcije zatvori trace
+
 	userId := fmt.Sprint(request.UserId)
 
 	var fromDb, err = handler.TourService.FindTour(userId)
@@ -30,6 +33,9 @@ func (handler *TourHandler) Get(ctx context.Context, request *tours.UserIdReques
 }
 
 func (handler *TourHandler) GetAllByAuthor(ctx context.Context, request *tours.UserIdRequest) (*tours.ToursResponse, error) {
+
+	_, span := tp.Tracer(serviceName).Start(ctx, "tours-getByAuthor")
+	defer func() { span.End() }() // na kraju funkcije zatvori trace
 
 	userId := fmt.Sprint(request.UserId)
 
